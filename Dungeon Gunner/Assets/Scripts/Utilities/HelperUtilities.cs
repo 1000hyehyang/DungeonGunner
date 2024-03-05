@@ -24,7 +24,7 @@ public class HelperUtilities
         {
             if (item == null)
             {
-                Debug.Log(fieldName + "has null values in object " + thisObject.name.ToString());
+                Debug.Log(fieldName + " has null values in object " + thisObject.name.ToString());
                 error = true;
             }
             else
