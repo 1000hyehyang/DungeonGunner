@@ -114,4 +114,14 @@ public class RoomNodeGraphEditor : EditorWindow
 
         AssetDatabase.SaveAssets();
     }
+
+    private void DrawRoomNodes()
+    {
+        foreach (RoomNodeSO roomNode in currentRoomNodeGraph.roomNodeList)
+        {
+            roomNode.Draw(roomNodeStyle);
+        }
+
+        GUI.changed = true;
+    }
 }
