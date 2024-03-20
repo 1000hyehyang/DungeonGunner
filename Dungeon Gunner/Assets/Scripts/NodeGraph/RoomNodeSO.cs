@@ -5,9 +5,9 @@ using System;
 
 public class RoomNodeSO : ScriptableObject
 {
-    public string id;
-    public List<string> parentRoomNodeIDList = new List<string>();
-    public List<string> childRoomNodeIDList = new List<string>();
+    [HideInInspector] public string id;
+    [HideInInspector] public List<string> parentRoomNodeIDList = new List<string>();
+    [HideInInspector] public List<string> childRoomNodeIDList = new List<string>();
     [HideInInspector] public RoomNodeGraphSO roomNodeGraph;
     public RoomNodeTypeSO roomNodeType;
     [HideInInspector] public RoomNodeTypeListSO roomNodeTypeList;
@@ -84,10 +84,12 @@ public class RoomNodeSO : ScriptableObject
 
     private void ProcessMouseDownEvent(Event currentEvent)
     {
+        // 왼쪽 마우스 클릭
         if (currentEvent.button == 0)
         {
             ProcessLeftClickDownEvent();
         }
+        // 오른쪽 마우스 클릭
         else if (currentEvent.button == 1)
         {
             ProcessRightClickDownEvent(currentEvent);
