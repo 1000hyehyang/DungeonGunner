@@ -5,6 +5,7 @@ using UnityEditor;
 public class RoomNodeGraphEditor : EditorWindow // 유니티 편집기에서 노드 그래프를 관리할 수 있다.
 {
     private GUIStyle roomNodeStyle;
+    private GUIStyle roomNodeSelectedStyle;
     private static RoomNodeGraphSO currentRoomNodeGraph;
     private RoomNodeSO currentRoomNode = null;
     private RoomNodeTypeListSO roomNodeTypeList;
@@ -27,6 +28,9 @@ public class RoomNodeGraphEditor : EditorWindow // 유니티 편집기에서 노드 그래프
 
     private void OnEnable()
     {
+        Selection.selectionChanged += InspectorSelectionChanged;
+
+
         // 노드의 레이아웃 스타일을 정의해준다.
         roomNodeStyle = new GUIStyle();
         roomNodeStyle.normal.background = EditorGUIUtility.Load("node1") as Texture2D; // 노드의 배경색
@@ -34,8 +38,19 @@ public class RoomNodeGraphEditor : EditorWindow // 유니티 편집기에서 노드 그래프
         roomNodeStyle.padding = new RectOffset(nodePadding, nodePadding, nodePadding, nodePadding);
         roomNodeStyle.border = new RectOffset(nodeBorder, nodeBorder, nodeBorder, nodeBorder);
 
+        roomNodeSelectedStyle = new GUIStyle();
+        roomNodeSelectedStyle.normal.background = EditorGUIUtility.Load("node1 on") as Texture2D; // 노드의 배경색
+        roomNodeSelectedStyle.normal.textColor = Color.white; // 노드의 글자색
+        roomNodeSelectedStyle.padding = new RectOffset(nodePadding, nodePadding, nodePadding, nodePadding);
+        roomNodeSelectedStyle.border = new RectOffset(nodeBorder, nodeBorder, nodeBorder, nodeBorder);
+
         roomNodeTypeList = GameResources.Instance.roomNodeTypeList;
 
+    }
+
+    private void OnDisable()
+    {
+        Selection.selectionChanged -= InspectorSelectionChanged;
     }
 
     [OnOpenAsset(0)]
@@ -137,6 +152,11 @@ public class RoomNodeGraphEditor : EditorWindow // 유니티 편집기에서 노드 그래프
         {
             ShowContextMenu(currentEvent.mousePosition);
         }
+        else if(currentEvent.button == 0)
+        {
+            ClearLineDrag();
+            ClearAllSelectedRoomNodes();
+        }
     }
 
     private void ShowContextMenu(Vector2 mousePosition)
@@ -150,6 +170,12 @@ public class RoomNodeGraphEditor : EditorWindow // 유니티 편집기에서 노드 그래프
 
     private void CreateRoomNode(object mousePositionObject)
     {
+        // 노드를 처음 생성하는가 확인 -> 처음 생성하면 입구 노드를 생성
+        if(currentRoomNodeGraph.roomNodeList.Count == 0)
+        {
+            CreateRoomNode(new Vector2(200f, 200f), roomNodeTypeList.list.Find(x => x.isEntrance));
+        }
+
         CreateRoomNode(mousePositionObject, roomNodeTypeList.list.Find(x => x.isNone));
     }
 
@@ -170,6 +196,18 @@ public class RoomNodeGraphEditor : EditorWindow // 유니티 편집기에서 노드 그래프
         currentRoomNodeGraph.OnValidate();
     }
 
+    private void ClearAllSelectedRoomNodes()
+    {
+        foreach(RoomNodeSO roomNode in currentRoomNodeGraph.roomNodeList)
+        {
+            if (roomNode.isSelected)
+            {
+                roomNode.isSelected = false;
+
+                GUI.changed = true;
+            }
+        }
+    }
     private void ProcessMouseUpEvent(Event currentEvent)
     {
         if (currentEvent.button == 1 && currentRoomNodeGraph.roomNodeToDrawLineFrom != null)
@@ -263,9 +301,27 @@ public class RoomNodeGraphEditor : EditorWindow // 유니티 편집기에서 노드 그래프
     {
         foreach (RoomNodeSO roomNode in currentRoomNodeGraph.roomNodeList)
         {
-            roomNode.Draw(roomNodeStyle);
+            if (roomNode.isSelected)
+            {
+                roomNode.Draw(roomNodeSelectedStyle);
+            }
+            else
+            {
+                roomNode.Draw(roomNodeStyle);
+            }
         }
 
         GUI.changed = true;
+    }
+
+    private void InspectorSelectionChanged()
+    {
+        RoomNodeGraphSO roomNodeGraph = Selection.activeObject as RoomNodeGraphSO;
+
+        if(roomNodeGraph != null)
+        {
+            currentRoomNodeGraph = roomNodeGraph;
+            GUI.changed = true;
+        }
     }
 }
