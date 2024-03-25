@@ -164,6 +164,8 @@ public class RoomNodeGraphEditor : EditorWindow // 유니티 편집기에서 노드 그래프
         GenericMenu menu = new GenericMenu();
 
         menu.AddItem(new GUIContent("Create Room Node"), false, CreateRoomNode, mousePosition);
+        menu.AddSeparator("");
+        menu.AddItem(new GUIContent("Select All Room Nodes"), false, SelectAllRoomNodes);
 
         menu.ShowAsContext();
     }
@@ -208,6 +210,16 @@ public class RoomNodeGraphEditor : EditorWindow // 유니티 편집기에서 노드 그래프
             }
         }
     }
+
+    private void SelectAllRoomNodes()
+    {
+        foreach(RoomNodeSO roomNode in currentRoomNodeGraph.roomNodeList)
+        {
+            roomNode.isSelected = true;
+        }
+        GUI.changed = true;
+    }
+
     private void ProcessMouseUpEvent(Event currentEvent)
     {
         if (currentEvent.button == 1 && currentRoomNodeGraph.roomNodeToDrawLineFrom != null)
